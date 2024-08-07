@@ -5,7 +5,7 @@ app = Flask(__name__)
 # Route for the home page
 @app.route('/alive')
 def home():
-    return "alive", 500
+    return "alive", 200
 
 # Route for the hello page
 @app.route('/ready')
