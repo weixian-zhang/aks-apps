@@ -4,17 +4,16 @@ metadata:
   name: web-dev
 
 ---
-# storage key secret
+# service account for workload identity
 apiVersion: v1
-kind: Secret
+kind: ServiceAccount
 metadata:
-  name: az-storage-key
-  namespace: web-dev
-data:
-  azurestorageaccountname: strgaksdev
-  azurestorageaccountkey: ""
-
+  annotations:
+    azure.workload.identity/client-id: "client id"
+  name: "sa-az-workload-identity"
+  namespace: "web-dev"
 ---
+
 # storage class for dynamic azure file creation
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -33,9 +32,9 @@ mountOptions:
  - nobrl  # disable sending byte range lock requests to the server and for applications which have challenges with posix locks
 parameters:
   skuName: Standard_LRS
-  storageAccount: strgaksdev
-  storageEndpointSuffix: core.windows.net
-  secretName: az-storage-key
+  # secretName: az-secret-storage # secret created via cmdline
+  shareName: web-file-share
+  # shareNamePrefix: 1-
 ---
 
 # PV claim
@@ -69,10 +68,11 @@ spec:
     metadata:
       labels:
         app: web-pyapp
+        azure.workload.identity/use: "true"
     spec:
       containers:
       - name: web-pyapp
-        image: acraksapps.azurecr.io/web/pyapp:0.0.2
+        image: acraksapps.azurecr.io/web/pyapp:0.0.1
         imagePullPolicy: "Always"
         ports:
         - containerPort: 5000
@@ -108,7 +108,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: web-pyapp-service
-  namespace: "web-dev"
+  namespace: web-dev
 spec:
   selector:
     app: web-pyapp
