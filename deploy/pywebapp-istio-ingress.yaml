@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: pywebapp-internal-gateway
+spec:
+  selector:
+    istio: aks-istio-ingressgateway-internal
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: pywebapp-virtual-service
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - pywebapp-internal-gateway
+  http:
+  - match:
+    - uri:
+        exact: /ready
+    - uri:
+        prefix: /alive
+    route:
+    - destination:
+        host: web-pyapp-service.web-dev.svc.cluster.local
+        port:
+          number: 80
