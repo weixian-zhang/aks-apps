@@ -1,0 +1,29 @@
+
+namespace: web-dev
+
+appName: web-pyapp
+
+storage:
+   file:
+      name: sc-azurefile
+      skuName: Standard_LRS
+      shareName: web-file-share
+
+service:
+  selector:
+    app: web-pyapp
+    version: 1.0.0
+  port: 80
+  targetPort: 5000
+
+
+deploy:
+  name: web-pyapp
+  matchLabels:
+    app: web-pyapp
+  spec:
+    replica: 3
+  container:
+    port: 5000
+  
+

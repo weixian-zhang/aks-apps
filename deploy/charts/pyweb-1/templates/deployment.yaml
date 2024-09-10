@@ -1,0 +1,59 @@
+# deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{  .Values.deploy.name  }}
+  namespace: {{  .Values.namespace  }}
+  labels:
+    {{- range  $key, $val := .Values.deploy.labels  }}
+       {{ $key }}: {{ $val }}
+    {{- end }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      {{- range  $key, $val := .Values.deploy.matchLabels  }}
+       {{ $key }}: {{ $val }}
+      {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- range  $key, $val := .Values.deploy.labels  }}
+          {{ $key }}: {{ $val }}
+        {{- end }}
+        azure.workload.identity/use: "true"
+    spec:
+      containers:
+      - name: {{  .Values.deploy.name  }}
+        image: acraksapps.azurecr.io/web/pyapp:0.0.1
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: {{  .Values.deploy.container.port  }}
+        volumeMounts:
+            - name: volume-azurefile
+              mountPath: /mnt/azure
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      
+      volumes:
+        - name: volume-azurefile
+          persistentVolumeClaim:
+            claimName: pvc-azurefile
+

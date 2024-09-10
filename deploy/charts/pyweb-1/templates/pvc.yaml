@@ -1,0 +1,12 @@
+# PV claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-azurefile
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: sc-azurefile
+  resources:
+    requests:
+      storage: 100Gi

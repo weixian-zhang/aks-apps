@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Values.appName }}-test-connection"
+  labels:
+    app: {{ .Values.appName }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ .Values.service.name }}.{{ .Values.namespace}}.svc.cluster.local:{{ .Values.service.port }}/alive']
+  restartPolicy: Never
