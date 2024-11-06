@@ -56,7 +56,7 @@ spec:
     spec:
       containers:
       - name: web-pyapp
-        image: acraksapps.azurecr.io/web/pyapp:0.0.1
+        image: acraksapps1.azurecr.io/pyweb/pyweb:v1
         imagePullPolicy: "Always"
         ports:
         - containerPort: 5000
@@ -83,11 +83,6 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
       
-      volumes:
-        - name: volume-azurefile
-          persistentVolumeClaim:
-            claimName: pvc-azurefile
-
 ---
 
 apiVersion: v1
